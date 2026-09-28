@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  python-tests:
+    name: Python tests (train/)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r train/requirements-dev.txt
+      - name: Run pytest
+        run: pytest train/tests -v
+
+  c-tests:
+    name: C tests (native host build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run
+        run: |
+          chmod +x tests/run_c_tests.sh
+          ./tests/run_c_tests.sh
+
+  arduino-compile-check:
+    name: Arduino sketch compiles for ESP32-S3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP32 core
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32
+      - name: Compile
+        run: |
+          arduino-cli compile --fqbn esp32:esp32:esp32s3 arduino/ultimate_ttt
