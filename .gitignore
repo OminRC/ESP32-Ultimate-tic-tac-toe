@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+train/train_log.txt
+train/smoke_test.npz
+train/policy_params.npz
+train/policy_params_best.npz
+train/*.npz
+
+# ESP-IDF build output
+build/
+sdkconfig
+sdkconfig.old
+managed_components/
+dependencies.lock
+
+# Arduino IDE
+*.zip
+
+# Editor / OS
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Claude Code session data (not part of the project)
+.claude/

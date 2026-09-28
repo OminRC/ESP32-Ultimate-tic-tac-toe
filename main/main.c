@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <string.h>
+#include "game.h"
+#include "net_infer.h"
+
+// Human plays O (-1), typed as "sub cell" e.g. "4 0" over Serial.
+// AI plays X (1), using the trained policy network (greedy: highest
+// legal-move probability -- no on-device search, just a single NN forward
+// pass per move).
+
+static int ai_choose_move(const Game *g, int *out_sub, int *out_cell) {
+    float state[126];
+    float policy[81];
+    game_encode(g, state);
+    float value = net_infer(state, policy);
+
+    float mask[81];
+    game_legal_mask81(g, mask);
+
+    int best_a = -1;
+    float best_p = -1.0f;
+    for (int a = 0; a < 81; a++) {
+        if (mask[a] > 0 && policy[a] > best_p) {
+            best_p = policy[a];
+            best_a = a;
+        }
+    }
+    if (best_a < 0) return 0;
+    *out_sub = best_a / 9;
+    *out_cell = best_a % 9;
+    printf("AI (X) plays sub=%d cell=%d  (policy=%.3f, value=%.3f)\n",
+           *out_sub, *out_cell, best_p, value);
+    return 1;
+}
+
+static void print_winner(const Game *g) {
+    if (g->winner == 1) printf("=== X (AI) wins! ===\n");
+    else if (g->winner == -1) printf("=== O (you) wins! ===\n");
+    else printf("=== draw ===\n");
+}
+
+void app_main(void) {
+    Game g;
+    game_init(&g);
+
+    printf("\nUltimate Tic-Tac-Toe -- you are O, AI is X.\n");
+    printf("Enter moves as: sub cell   (0-8 0-8), e.g. '4 4'\n\n");
+
+    while (!g.done) {
+        game_print(&g);
+
+        if (g.player == 1) {
+            int sub, cell;
+            if (ai_choose_move(&g, &sub, &cell)) {
+                game_play(&g, sub, cell);
+            }
+        } else {
+            int subs[9], n;
+            game_legal_subboards(&g, subs, &n);
+            printf("Your turn (O). Legal sub-boards: ");
+            for (int i = 0; i < n; i++) printf("%d ", subs[i]);
+            printf("\n> ");
+            fflush(stdout);
+
+            int sub = -1, cell = -1;
+            char line[64];
+            if (fgets(line, sizeof(line), stdin) != NULL) {
+                if (sscanf(line, "%d %d", &sub, &cell) != 2) {
+                    printf("Could not parse input, try again.\n");
+                    continue;
+                }
+            } else {
+                continue;
+            }
+
+            if (sub < 0 || sub > 8 || cell < 0 || cell > 8 ||
+                !game_is_legal_move(&g, sub, cell)) {
+                printf("Illegal move, try again.\n");
+                continue;
+            }
+            game_play(&g, sub, cell);
+        }
+    }
+
+    game_print(&g);
+    print_winner(&g);
+}
