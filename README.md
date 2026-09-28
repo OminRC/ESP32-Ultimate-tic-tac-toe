@@ -5,13 +5,21 @@
 An AlphaZero-lite policy+value network for [Ultimate Tic-Tac-Toe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe),
 trained via self-play MCTS (pure NumPy/PyTorch, no TFLite Micro), exported as
 plain C float arrays, and run as greedy single-forward-pass inference on an
-**ESP32-S3** (tested on an N8R2 module: 8MB flash / 512KB SRAM). No external
-sensors or display modules needed — play against it over the Serial monitor.
+**ESP32-S3**. No external sensors or display modules needed — play against
+it over the Serial monitor.
 
 ```
 [self-play + MCTS]  -->  [tiny MLP: 126 -> 96 -> 64 -> {81, 1}]  -->  [C float arrays]  -->  [ESP32-S3 inference]
       (PC / Kaggle GPU)              ~24K params, ~93KB                                        Serial-monitor game
 ```
+
+> **Target hardware**: this project was built and tuned specifically for the
+> **ESP32-S3-N8R2** module (8MB flash / 512KB SRAM / 2MB PSRAM). Every design
+> choice — model size (~93KB), skipping TFLite Micro, skipping on-device
+> MCTS — was made to comfortably fit *this* chip's memory budget, not as a
+> generic "runs on any ESP32" claim. It should also run unmodified on other
+> ESP32-S3 variants with at least this much flash/RAM (e.g. N16R8), but
+> hasn't been tested on the plain ESP32, ESP32-C3, or other non-S3 chips.
 
 ---
 
@@ -111,8 +119,7 @@ MIT — see [LICENSE](LICENSE).
 یه شبکه‌ی policy+value به سبک AlphaZero-lite برای بازی
 [Ultimate Tic-Tac-Toe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe)،
 که با self-play MCTS آموزش دیده (فقط NumPy/PyTorch، بدون TFLite Micro)،
-به‌صورت آرایه‌های float در C اکسپورت شده، و روی **ESP32-S3** (تست‌شده
-روی ماژول N8R2: ۸ مگابایت فلش / ۵۱۲ کیلوبایت SRAM) به‌صورت یه
+به‌صورت آرایه‌های float در C اکسپورت شده، و روی **ESP32-S3** به‌صورت یه
 forward-pass ساده (greedy) اجرا می‌شه. هیچ سنسور یا ماژول نمایشگر
 خارجی لازم نیست — از طریق Serial Monitor باهاش بازی کن.
 
@@ -120,6 +127,15 @@ forward-pass ساده (greedy) اجرا می‌شه. هیچ سنسور یا ما
 [self-play + MCTS]  -->  [MLP کوچیک: ۱۲۶ -> ۹۶ -> ۶۴ -> {۸۱، ۱}]  -->  [آرایه‌های float در C]  -->  [inference روی ESP32-S3]
       (PC یا GPU رایگان Kaggle)         ~۲۴هزار پارامتر، ~۹۳KB                                        بازی از طریق Serial
 ```
+
+> **سخت‌افزار هدف**: این پروژه دقیقاً برای ماژول **ESP32-S3-N8R2**
+> (۸ مگابایت فلش / ۵۱۲ کیلوبایت SRAM / ۲ مگابایت PSRAM) ساخته و تنظیم
+> شده. هر تصمیم طراحی — حجم مدل (~۹۳KB)، رد کردن TFLite Micro، رد کردن
+> جستجوی MCTS روی خود برد — دقیقاً برای جا‌شدن راحت داخل بودجه‌ی حافظه‌ی
+> **همین چیپ** گرفته شده، نه یه ادعای کلی «روی هر ESP32 اجرا می‌شه».
+> روی سایر نسخه‌های ESP32-S3 با حداقل همین مقدار فلش/RAM (مثل N16R8) هم
+> باید بدون تغییر کار کنه، ولی روی ESP32 معمولی، ESP32-C3، یا چیپ‌های
+> غیر-S3 تست نشده.
 
 ### ساختار مخزن
 
