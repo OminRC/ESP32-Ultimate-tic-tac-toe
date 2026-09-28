@@ -67,7 +67,14 @@ static void test_winning_the_big_board(void) {
 static void test_drawn_subboard_counts_as_neutral(void) {
     Game g;
     game_init(&g);
-    int8_t fill[9] = {1, -1, 1, -1, -1, 1, -1, 1, -1}; // no winner, full
+    // Classic no-winner full board:
+    //   X O X
+    //   X O O
+    //   O X X
+    // game_play() writes the *current player's* mark (g.player, still X/+1
+    // here since we haven't called play() yet) into the final cell, so
+    // index 8 below must already be +1 to match what game_play will write.
+    int8_t fill[9] = {1, -1, 1, 1, -1, -1, -1, 1, 1};
     for (int c = 0; c < 8; c++) g.board[0][c] = fill[c];
     bool done = game_play(&g, 0, 8);
     assert(g.sub_result[0] == 2); // drawn

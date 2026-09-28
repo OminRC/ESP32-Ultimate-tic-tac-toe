@@ -2,8 +2,8 @@
 // main/model_weights.h -- catches C-side inference bugs (shape mismatches,
 // bad indexing) without needing ESP32 hardware.
 // Build+run via tests/run_c_tests.sh, or manually:
-//   gcc -I../../main -o test_net_infer test_net_infer.c \
-//       ../../main/net_infer.c ../../main/game.c -lm && ./test_net_infer
+//   gcc -I../../main -o test_net_infer test_net_infer.c ../../main/net_infer.c ../../main/game.c -lm
+//   ./test_net_infer
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
