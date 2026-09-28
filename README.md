@@ -1,5 +1,7 @@
 # Ultimate Tic-Tac-Toe AI on ESP32-S3
 
+[English](#english) | [فارسی](#فارسی)
+
 An AlphaZero-lite policy+value network for [Ultimate Tic-Tac-Toe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe),
 trained via self-play MCTS (pure NumPy/PyTorch, no TFLite Micro), exported as
 plain C float arrays, and run as greedy single-forward-pass inference on an
@@ -11,7 +13,11 @@ sensors or display modules needed — play against it over the Serial monitor.
       (PC / Kaggle GPU)              ~24K params, ~93KB                                        Serial-monitor game
 ```
 
-## Repository layout
+---
+
+## English
+
+### Repository layout
 
 ```
 train/      Training pipeline (Python) -- self-play MCTS, network, export to C
@@ -19,9 +25,9 @@ main/       ESP-IDF project (main.c, game engine, inference, model weights)
 arduino/    Arduino IDE version of the same firmware
 ```
 
-## Quick start
+### Quick start
 
-### 1. Train a model
+#### 1. Train a model
 
 Locally (NumPy, CPU, slow but dependency-free):
 ```bash
@@ -40,7 +46,7 @@ itself to be the bottleneck) and includes early stopping against a
 random-move baseline, so you don't have to guess how many iterations you
 need.
 
-### 2. Export the trained weights to C
+#### 2. Export the trained weights to C
 
 ```bash
 python export_weights.py policy_params.npz --out ../main/model_weights.h
@@ -49,7 +55,7 @@ python export_weights.py policy_params.npz --out ../main/model_weights.h
 The model is ~93KB as float32 — small enough that no INT8 quantization is
 needed; it just lives in flash as a `const` array.
 
-### 3. Build and flash
+#### 3. Build and flash
 
 **ESP-IDF:**
 ```bash
@@ -63,7 +69,7 @@ idf.py -p <PORT> build flash monitor
 settings (8MB flash, PSRAM enabled), and wiring notes for a bare module
 (no onboard USB-UART).
 
-### 4. Play
+#### 4. Play
 
 The board prints as text over the Serial monitor (115200 baud). You are
 `O`, the AI is `X`. Enter moves as `sub cell` (both 0-8), e.g.:
@@ -77,7 +83,7 @@ active-sub-board rule is enforced (the cell you play in picks which
 mini-board your opponent must play in next — standard Ultimate
 Tic-Tac-Toe rules).
 
-## Design notes
+### Design notes
 
 - **Why no TFLite Micro**: the network is tiny (126→96→64→{81,1}, ~24K
   params), so hand-rolled float matmuls in [`main/net_infer.c`](main/net_infer.c)
@@ -94,6 +100,112 @@ Tic-Tac-Toe rules).
   scratch buffers well under 1KB SRAM, game state struct ~100 bytes —
   comfortably fits within 512KB SRAM.
 
-## License
+### License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+## فارسی
+
+یه شبکه‌ی policy+value به سبک AlphaZero-lite برای بازی
+[Ultimate Tic-Tac-Toe](https://en.wikipedia.org/wiki/Ultimate_tic-tac-toe)،
+که با self-play MCTS آموزش دیده (فقط NumPy/PyTorch، بدون TFLite Micro)،
+به‌صورت آرایه‌های float در C اکسپورت شده، و روی **ESP32-S3** (تست‌شده
+روی ماژول N8R2: ۸ مگابایت فلش / ۵۱۲ کیلوبایت SRAM) به‌صورت یه
+forward-pass ساده (greedy) اجرا می‌شه. هیچ سنسور یا ماژول نمایشگر
+خارجی لازم نیست — از طریق Serial Monitor باهاش بازی کن.
+
+```
+[self-play + MCTS]  -->  [MLP کوچیک: ۱۲۶ -> ۹۶ -> ۶۴ -> {۸۱، ۱}]  -->  [آرایه‌های float در C]  -->  [inference روی ESP32-S3]
+      (PC یا GPU رایگان Kaggle)         ~۲۴هزار پارامتر، ~۹۳KB                                        بازی از طریق Serial
+```
+
+### ساختار مخزن
+
+```
+train/      پایپ‌لاین ترینینگ (پایتون) -- self-play MCTS، شبکه، export به C
+main/       پروژه‌ی ESP-IDF (main.c، موتور بازی، inference، وزن‌های مدل)
+arduino/    نسخه‌ی Arduino IDE از همون فریمور
+```
+
+### شروع سریع
+
+#### ۱. ترینینگ مدل
+
+به‌صورت محلی (NumPy، روی CPU، کند ولی بدون وابستگی سنگین):
+```bash
+cd train
+pip install -r requirements.txt
+python train.py --iterations 25 --games-per-iter 25 --sims 50 --out policy_params.npz
+python eval_vs_random.py policy_params.npz --games 100
+```
+
+یا روی [Kaggle](https://www.kaggle.com) با GPU رایگان (خیلی سریع‌تر؛
+راهنمای کامل در [`train/KAGGLE.md`](train/KAGGLE.md)، و یه نوت‌بوک
+آماده برای Import در [`train/ultimate_ttt_kaggle.ipynb`](train/ultimate_ttt_kaggle.ipynb)).
+اسکریپت `train_kaggle_mp.py` self-play رو بین چند پردازه‌ی موازی روی
+هسته‌های CPU پخش می‌کنه (چون مدل اونقدر کوچیکه که GPU خودش تنگنا
+نمی‌شه) و یه early stopping در برابر حریف تصادفی هم داره، پس لازم
+نیست حدس بزنی چند iteration کافیه.
+
+#### ۲. اکسپورت وزن‌های train‌شده به C
+
+```bash
+python export_weights.py policy_params.npz --out ../main/model_weights.h
+```
+
+مدل حدود ۹۳ کیلوبایت (float32) هست — اونقدر کوچیکه که نیازی به
+کوانتایز INT8 نداره؛ فقط به‌صورت یه آرایه‌ی `const` روی فلش می‌شینه.
+
+#### ۳. Build و Flash
+
+**ESP-IDF:**
+```bash
+cd ..
+idf.py set-target esp32s3
+idf.py -p <PORT> build flash monitor
+```
+
+**Arduino IDE:** فایل
+[`arduino/ultimate_ttt/ultimate_ttt.ino`](arduino/ultimate_ttt/ultimate_ttt.ino)
+رو باز کن — راهنمای کامل نصب Board Manager، تنظیمات برد (فلش ۸MB،
+PSRAM فعال) و سیم‌کشی برای ماژول لخت (بدون USB-UART روی‌برد) در
+[`arduino/README.md`](arduino/README.md) هست.
+
+#### ۴. بازی
+
+صفحه‌ی بازی به‌صورت متن روی Serial Monitor (با baud rate ۱۱۵۲۰۰) چاپ
+می‌شه. تو `O` هستی، هوش مصنوعی `X` هست. حرکتت رو به‌صورت `sub cell`
+(هر دو بین ۰ تا ۸) وارد کن، مثلاً:
+
+```
+> 4 4
+```
+
+`sub` = کدوم‌یک از ۹ زیرصفحه، `cell` = کدوم‌یک از ۹ خونه‌ی داخل اون
+زیرصفحه. قانون «زیرصفحه‌ی فعال» رعایت می‌شه (خونه‌ای که توش بازی
+می‌کنی مشخص می‌کنه حریفت باید تو کدوم زیرصفحه حرکت بعدیش رو بزنه —
+قانون استاندارد Ultimate Tic-Tac-Toe).
+
+### نکات طراحی
+
+- **چرا بدون TFLite Micro**: شبکه خیلی کوچیکه (۱۲۶→۹۶→۶۴→{۸۱،۱}،
+  حدود ۲۴هزار پارامتر)، برای همین matmul دستی با float در
+  [`main/net_infer.c`](main/net_infer.c) از آوردن کل کامپوننت TFLite
+  Micro ساده‌تره.
+- **چرا بدون جستجوی on-device**: MCTS در لحظه‌ی inference به چندین
+  forward pass در هر حرکت نیاز داره؛ یه forward pass ساده (greedy)
+  برای یه حریف معقول کافیه و فریمور رو ساده نگه می‌داره. اگه بخوای
+  فراتر بری، می‌تونی `run_mcts` از [`train/mcts.py`](train/mcts.py)
+  رو به C پورت کنی و `net_infer` رو توش صدا بزنی (هزینه‌ی حافظه هنوز
+  کمه، فقط هر حرکت کندتر می‌شه).
+- **چرا NumPy/PyTorch خالص به‌جای TensorFlow**: پایپ‌لاین ترینینگ رو
+  سبک نگه می‌داره و از تداخل نسخه‌ی TF/protobuf جلوگیری می‌کنه.
+- **بودجه‌ی حافظه**: وزن‌های مدل ~۹۳KB (روی فلش، نه SRAM)، بافرهای
+  inference خیلی کمتر از ۱KB SRAM، ساختار وضعیت بازی ~۱۰۰ بایت — کاملاً
+  داخل ظرفیت ۵۱۲KB SRAM جا می‌شه.
+
+### لایسنس
+
+MIT — به فایل [LICENSE](LICENSE) نگاه کن.
