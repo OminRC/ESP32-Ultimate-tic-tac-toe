@@ -44,6 +44,7 @@ jobs:
       - name: Compile
         run: |
           arduino-cli compile --fqbn esp32:esp32:esp32s3 arduino/ultimate_ttt
+          arduino-cli compile --fqbn esp32:esp32:esp32s3 arduino/ultimate_ttt_wifi
 
   esp-idf-build:
     name: ESP-IDF build (${{ matrix.name }})

@@ -30,7 +30,7 @@ it over the Serial monitor.
 ```
 train/      Training pipeline (Python) -- self-play MCTS, network, export to C
 main/       ESP-IDF project: play over the Serial monitor
-arduino/    Arduino IDE version of the same firmware (Serial monitor)
+arduino/    Arduino IDE versions: ultimate_ttt/ (Serial monitor), ultimate_ttt_wifi/ (phone browser over WiFi)
 wifi/       ESP-IDF project: board hosts its own WiFi + a web UI -- play from a phone browser, no cable needed after flashing (see wifi/README.md)
 ```
 
@@ -143,7 +143,7 @@ forward-pass ساده (greedy) اجرا می‌شه. هیچ سنسور یا ما
 ```
 train/      پایپ‌لاین ترینینگ (پایتون) -- self-play MCTS، شبکه، export به C
 main/       پروژه‌ی ESP-IDF: بازی از طریق Serial Monitor
-arduino/    نسخه‌ی Arduino IDE از همون فریمور (Serial Monitor)
+arduino/    نسخه‌های Arduino IDE: ultimate_ttt/ (Serial Monitor)، ultimate_ttt_wifi/ (مرورگر گوشی از طریق WiFi)
 wifi/       پروژه‌ی ESP-IDF: برد خودش یه WiFi و وب‌سرور بالا میاره -- بازی از طریق مرورگر گوشی، بدون نیاز به کابل بعد از فلش (جزئیات در wifi/README.md)
 ```
 
