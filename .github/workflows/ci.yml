@@ -46,11 +46,19 @@ jobs:
           arduino-cli compile --fqbn esp32:esp32:esp32s3 arduino/ultimate_ttt
 
   esp-idf-build:
-    name: ESP-IDF build (${{ matrix.project }})
+    name: ESP-IDF build (${{ matrix.name }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        project: [main, wifi]
+        # `path` must point at the directory holding the top-level
+        # CMakeLists.txt (the one with project(...)), NOT the `main/`
+        # component subdirectory -- for the Serial variant that's the repo
+        # root, since its `main/` is just the component, not the project.
+        include:
+          - name: serial (main/)
+            path: .
+          - name: wifi
+            path: wifi
     steps:
       - uses: actions/checkout@v4
       - name: Build
@@ -58,4 +66,4 @@ jobs:
         with:
           esp_idf_version: latest
           target: esp32s3
-          path: ${{ matrix.project }}
+          path: ${{ matrix.path }}
