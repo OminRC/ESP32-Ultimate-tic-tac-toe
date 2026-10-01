@@ -29,8 +29,9 @@ it over the Serial monitor.
 
 ```
 train/      Training pipeline (Python) -- self-play MCTS, network, export to C
-main/       ESP-IDF project (main.c, game engine, inference, model weights)
-arduino/    Arduino IDE version of the same firmware
+main/       ESP-IDF project: play over the Serial monitor
+arduino/    Arduino IDE version of the same firmware (Serial monitor)
+wifi/       ESP-IDF project: board hosts its own WiFi + a web UI -- play from a phone browser, no cable needed after flashing (see wifi/README.md)
 ```
 
 ### Quick start
@@ -141,8 +142,9 @@ forward-pass ساده (greedy) اجرا می‌شه. هیچ سنسور یا ما
 
 ```
 train/      پایپ‌لاین ترینینگ (پایتون) -- self-play MCTS، شبکه، export به C
-main/       پروژه‌ی ESP-IDF (main.c، موتور بازی، inference، وزن‌های مدل)
-arduino/    نسخه‌ی Arduino IDE از همون فریمور
+main/       پروژه‌ی ESP-IDF: بازی از طریق Serial Monitor
+arduino/    نسخه‌ی Arduino IDE از همون فریمور (Serial Monitor)
+wifi/       پروژه‌ی ESP-IDF: برد خودش یه WiFi و وب‌سرور بالا میاره -- بازی از طریق مرورگر گوشی، بدون نیاز به کابل بعد از فلش (جزئیات در wifi/README.md)
 ```
 
 ### شروع سریع

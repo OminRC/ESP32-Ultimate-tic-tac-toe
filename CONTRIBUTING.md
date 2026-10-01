@@ -30,13 +30,15 @@ design notes.
 
 ## Guidelines
 
-- Keep `main/` (ESP-IDF) and `arduino/ultimate_ttt/` (Arduino) in sync:
-  `game.c`/`game.h`/`net_infer.c`/`net_infer.h` should stay byte-for-byte
-  identical between the two (only `main.c` vs. `ultimate_ttt.ino` differ,
-  since they use different I/O — ESP-IDF's stdio console vs. Arduino's
-  `Serial`).
+- Keep `main/` (ESP-IDF/Serial), `arduino/ultimate_ttt/` (Arduino/Serial),
+  and `wifi/main/` (ESP-IDF/WiFi web UI) in sync: `game.c`/`game.h`/
+  `net_infer.c`/`net_infer.h` should stay byte-for-byte identical across
+  all three. Only the entry point differs (`main.c` vs. `ultimate_ttt.ino`
+  vs. `wifi/main/main.c`), since each uses a different I/O layer — ESP-IDF's
+  stdio console, Arduino's `Serial`, or an HTTP server, respectively.
 - If you change `train/game.py`'s rules/encoding, mirror the change in
-  `main/game.c` (and its Arduino copy) and update both test suites —
+  `main/game.c` (and its Arduino and WiFi copies) and update both test
+  suites —
   the two implementations are intentionally kept as parallel ports of each
   other, not a single shared codebase, since the device side has no Python
   runtime.
